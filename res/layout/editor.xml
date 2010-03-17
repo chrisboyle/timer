@@ -21,9 +21,9 @@
 			android:layout_width="wrap_content" android:layout_height="fill_parent" />
 		<EditText android:layout_height="wrap_content" android:layout_width="0dip" android:layout_weight="1"
 			android:id="@+id/timerName" android:hint="Timer name"/>
-		<ToggleButton android:layout_width="wrap_content"
+		<name.boyle.chris.timer.LongPressToggle android:layout_width="wrap_content"
 			android:layout_height="wrap_content" android:id="@+id/toggler"
-			android:layout_gravity="center"></ToggleButton>
+			android:layout_gravity="center"/>
 	</LinearLayout>
 	<LinearLayout android:layout_height="wrap_content"
 		android:layout_centerHorizontal="true" android:layout_below="@id/titleAndToggle"
