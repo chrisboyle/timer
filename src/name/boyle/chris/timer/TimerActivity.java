@@ -76,7 +76,7 @@ public class TimerActivity extends Activity
         e2.parent = this;
         e2.timer = new Timer();  // just so restoreInstanceState doesn't crash
         updatePosition();
-        // TODO notify iff we haven't already
+        if (t.nextMillis > System.currentTimeMillis()) t.setNextAlarm(this);
     }
     
     @Override

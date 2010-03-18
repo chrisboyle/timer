@@ -29,8 +29,8 @@ public class Receiver extends BroadcastReceiver
 	public void onReceive(Context context, Intent intent)
 	{
 		String action = intent.getAction();
-		if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
-			// Alarms don't survive reboots, so restore them all
+		if (action.equals(Intent.ACTION_BOOT_COMPLETED) || action.equals(Intent.ACTION_PACKAGE_REPLACED)) {
+			// Alarms don't survive reboots or upgrades, so restore them all
 			TimerDB db = new TimerDB(context);
 			db.open();
 			Cursor c = db.getAllEntries();
