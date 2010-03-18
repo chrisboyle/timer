@@ -19,6 +19,7 @@ package name.boyle.chris.timer;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -70,11 +71,12 @@ public class TimerActivity extends Activity
         Editor e1 = (Editor)findViewById(R.id.editor1);
         e1.parent = this;
         e1.timer = t;
-        e1.setUIFromTimer();
+        e1.setUIFromTimer();  // TODO doesn't work in recreate for config change?
         Editor e2 = (Editor)findViewById(R.id.editor2);
         e2.parent = this;
         e2.timer = new Timer();  // just so restoreInstanceState doesn't crash
         updatePosition();
+        // TODO notify iff we haven't already
     }
     
     @Override
@@ -249,5 +251,11 @@ public class TimerActivity extends Activity
 			break;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
 	}
 }

@@ -83,7 +83,6 @@ public class Editor extends RelativeLayout
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
         });
         toggler = (ToggleButton)findViewById(R.id.toggler);
-        // TODO require long press
         toggler.setOnCheckedChangeListener(new ToggleButton.OnCheckedChangeListener() {
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				if (ignoreChanges) return;

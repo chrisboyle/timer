@@ -64,22 +64,35 @@ public class Timer
 		nextMillis = (enabled ? System.currentTimeMillis() : 0) + intervalSecs*1000 + 3;
 	}
 	
-	protected static long timeOfDaySecs()
+	protected static long occurrence(int timeOfDay, long from, boolean forwards)
 	{
 		Time t = new Time();
-		t.setToNow();
-		return t.hour*3600 + t.minute*60 + t.second;
+		t.set(from);
+		t.second = timeOfDay % 60;
+		timeOfDay /= 60;
+		t.minute = timeOfDay % 60;
+		timeOfDay /= 60;
+		t.hour = timeOfDay;
+		long m = t.toMillis(true);
+		if (forwards && m < from) {
+			t.monthDay++;
+			t.normalize(true);
+			m = t.toMillis(true);
+		} else if (! forwards && m > from) {
+			t.monthDay--;
+			t.normalize(true);
+			m = t.toMillis(true);
+		}
+		return m;
 	}
 	
 	protected boolean isNight()
 	{
-		// TODO: don't wake me up: check for any overlap between (nextMillis,now) and (nightStart,nightStop)
 		if (nightNext) return true;
-		long timeOfDay = timeOfDaySecs();
-		boolean midnightIsNight = nightStop < nightStart,
-				postStart = timeOfDay >= nightStart,
-				preEnd = timeOfDay < nightStop;
-		return midnightIsNight ? (postStart || preEnd) : (postStart && preEnd);
+		long now = System.currentTimeMillis(),
+				lastNightStart = occurrence((int)nightStart, now, false),
+				nextNightStop = occurrence((int)nightStop, lastNightStart, true);
+		return ! (lastNightStart <= nextMillis && nextNightStop <= nextMillis);
 	}
 	
 	protected boolean shouldWait()
@@ -105,7 +118,7 @@ public class Timer
 		boolean isNight = isNight();
 		nightNext = false;
 		boolean useLED = isNight ? nightLED : dayLED; 
-		String text = name.length() > 0 ? name : "Timer"; 
+		String text = name.length() > 0 ? name : "Timer";
 		Notification n = new Notification(R.drawable.icon, text,
 				nextMillis);
 		n.setLatestEventInfo(context, text, null, PendingIntent.getActivity(
