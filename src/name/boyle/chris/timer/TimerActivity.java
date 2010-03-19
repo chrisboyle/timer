@@ -71,7 +71,7 @@ public class TimerActivity extends Activity
         Editor e1 = (Editor)findViewById(R.id.editor1);
         e1.parent = this;
         e1.timer = t;
-        e1.setUIFromTimer();  // TODO doesn't work in recreate for config change?
+        e1.setUIFromTimer();
         Editor e2 = (Editor)findViewById(R.id.editor2);
         e2.parent = this;
         e2.timer = new Timer();  // just so restoreInstanceState doesn't crash
@@ -83,6 +83,7 @@ public class TimerActivity extends Activity
 	protected void onDestroy()
     {
     	super.onDestroy();
+    	timers.close();
     	db.close();
     }
     
@@ -258,4 +259,19 @@ public class TimerActivity extends Activity
 	{
 		super.onConfigurationChanged(newConfig);
 	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState)
+	{
+		// Deliberately do nothing; this app saves changes immediately.
+		// Moreover, the default save and restore seems to restore from
+		// a blank state, which is problematic.
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState)
+	{
+		// Do nothing, see above.
+	}
+
 }

@@ -41,6 +41,7 @@ public class Receiver extends BroadcastReceiver
 					t.setNextAlarm(context);
 				} while (c.moveToNext());
 			}
+			c.close();
 			db.close();
 		} else if (action.equals(ACTION_ALARM)) {
 			// It's time to sound/show an alarm
