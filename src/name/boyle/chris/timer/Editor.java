@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.text.format.Time;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,6 +43,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 
 public class Editor extends RelativeLayout
 {
+	static final String NO_TIME = "--:--";
 	EditText timerName;
 	ToggleButton toggler;
     HMSPicker next, interval;
@@ -106,7 +108,7 @@ public class Editor extends RelativeLayout
 					int s = next.getSecs();
 					if (s > 0) timer.unNotify(context);
 					timer.nextMillis = s*1000 + (timer.enabled ? System.currentTimeMillis()-3 : 0);
-					parent.ticker.run();
+					if (timer.enabled) parent.ticker.run(); else updateNextTimes();
 					timer.setNextAlarm(getContext());
 					parent.delayedSave();
 				}
@@ -118,15 +120,15 @@ public class Editor extends RelativeLayout
 					timer.intervalSecs = interval.getSecs();
 					if (timer.nextMillis > System.currentTimeMillis())
 						timer.setNextAlarm(getContext());
+					updateNextTimes();
 					parent.delayedSave();
 				}
 			});
         }
-        // TODO make these two labels work
         nextAlarm = (TextView)findViewById(R.id.nextAlarm);
-        nextAlarm.setText("--:--");
+        nextAlarm.setText(NO_TIME);
         nextAlarm2 = (TextView)findViewById(R.id.nextAlarm2);
-        nextAlarm2.setText("--:--");
+        nextAlarm2.setText(NO_TIME);
         nightStart = (Button)findViewById(R.id.nightStart);
         nightStop = (Button)findViewById(R.id.nightStop);
         nightNext = (CheckBox)findViewById(R.id.nightNext);
@@ -164,6 +166,20 @@ public class Editor extends RelativeLayout
 	        nightStop.setOnClickListener(setTime);
         }
 	}
+	
+	protected void updateNextTimes()
+	{
+		Time t = new Time();
+		long ms = (timer.enabled ? 0 : System.currentTimeMillis()) + timer.nextMillis;
+		t.set(ms);
+		nextAlarm.setText(t.format("%H:%M"));
+		if (timer.intervalSecs > 0) {
+			t.set(ms+timer.intervalSecs*1000);
+			nextAlarm2.setText(t.format("%H:%M"));
+		} else {
+			nextAlarm2.setText(NO_TIME);
+		}
+	}
 		
 	OnCheckedChangeListener cbChanged = new OnCheckedChangeListener() {
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -194,6 +210,7 @@ public class Editor extends RelativeLayout
     	toggler.setChecked(timer.enabled);
     	setNextPicker();
     	interval.setSecs((int)timer.intervalSecs);
+    	updateNextTimes();
         updateTone(false);
         dayLED.setChecked(timer.dayLED);
         dayWait.setChecked(timer.dayWait);

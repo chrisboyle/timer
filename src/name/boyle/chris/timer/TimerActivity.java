@@ -131,6 +131,7 @@ public class TimerActivity extends Activity
 			Timer t = e.timer;
 			if (! t.enabled) return;
 			e.setNextPicker();
+			e.updateNextTimes();
 			long remaining = t.nextMillis - System.currentTimeMillis();
 			handler.postDelayed(this, (remaining > 0) ? (remaining%1000 + 3) : 500);
 		}

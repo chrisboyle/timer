@@ -56,7 +56,6 @@ public class Receiver extends BroadcastReceiver
 				t.reset();
 				needSave = true;  // to save new alarm time
 				t.setNextAlarm(context);
-				// ticker should pick up the change
 			}
 			if (needSave) db.saveEntry(t);
 			db.close();
