@@ -18,7 +18,10 @@ package name.boyle.chris.timer;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.media.RingtoneManager;
@@ -38,6 +41,7 @@ public class TimerActivity extends Activity
 {
 	public static final String TAG = "Timer";
 	public static final int DAY_TONE = 1, NIGHT_TONE = 2;
+	static final String ACTION_REQUERY = "name.boyle.chris.timer.REQUERY";
 	RingtoneManager rtm;
 	TimerDB db;
 	ViewSwitcher switcher;
@@ -79,6 +83,22 @@ public class TimerActivity extends Activity
         if (t.nextMillis > System.currentTimeMillis()) t.setNextAlarm(this);
     }
     
+    public BroadcastReceiver requeryReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			int p = timers.getPosition();
+			timers.requery();
+			if (! timers.moveToPosition(p)) throw new RuntimeException("cursor disappeared!");
+			runOnUiThread(new Runnable() {
+				public void run() {
+					Editor newEd = (Editor)switcher.getCurrentView();
+					newEd.timer = db.cursorToEntry(timers);
+					newEd.setUIFromTimer();
+				}
+			});
+		}
+    };
+
     @Override
 	protected void onDestroy()
     {
@@ -92,6 +112,7 @@ public class TimerActivity extends Activity
     {
     	super.onPause();
     	handler.removeCallbacks(ticker);
+    	unregisterReceiver(requeryReceiver);
     	if (needSave) save();
     }
     
@@ -99,6 +120,7 @@ public class TimerActivity extends Activity
     protected void onResume()
     {
     	super.onResume();
+        registerReceiver(requeryReceiver, new IntentFilter(ACTION_REQUERY));
     	ticker.run(); 
     }
     
@@ -111,7 +133,6 @@ public class TimerActivity extends Activity
 			e.setNextPicker();
 			long remaining = t.nextMillis - System.currentTimeMillis();
 			handler.postDelayed(this, (remaining > 0) ? (remaining%1000 + 3) : 500);
-			// TODO: requery for no-wait/nightNext
 		}
 	};
     

@@ -60,6 +60,7 @@ public class Receiver extends BroadcastReceiver
 			}
 			if (needSave) db.saveEntry(t);
 			db.close();
+			if (needSave) context.sendBroadcast(new Intent(TimerActivity.ACTION_REQUERY));
 		}
 	}
 

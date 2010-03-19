@@ -53,7 +53,7 @@ public class Timer
 		i.putExtra(TimerDB.KEY_ID, id);
 		PendingIntent p = PendingIntent.getBroadcast(context, 0, i, 0);
 		if (enabled) {
-			alarms.setRepeating(AlarmManager.RTC_WAKEUP, nextMillis, 600000, p);  // 10 minutes
+			alarms.setRepeating(AlarmManager.RTC_WAKEUP, nextMillis, 300000, p);  // 5 minutes
 		} else {
 			alarms.cancel(p);
 		}
