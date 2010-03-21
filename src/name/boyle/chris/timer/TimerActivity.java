@@ -41,7 +41,7 @@ public class TimerActivity extends Activity
 {
 	public static final String TAG = "Timer";
 	public static final int DAY_TONE = 1, NIGHT_TONE = 2;
-	static final String ACTION_REQUERY = "name.boyle.chris.timer.REQUERY";
+	static final String ACTION_RESET = "name.boyle.chris.timer.RESET";
 	RingtoneManager rtm;
 	TimerDB db;
 	ViewSwitcher switcher;
@@ -83,19 +83,21 @@ public class TimerActivity extends Activity
         if (t.nextMillis > System.currentTimeMillis()) t.setNextAlarm(this);
     }
     
-    public BroadcastReceiver requeryReceiver = new BroadcastReceiver() {
+    public BroadcastReceiver resetReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			int p = timers.getPosition();
-			timers.requery();
-			if (! timers.moveToPosition(p)) throw new RuntimeException("cursor disappeared!");
-			runOnUiThread(new Runnable() {
-				public void run() {
-					Editor newEd = (Editor)switcher.getCurrentView();
-					newEd.timer = db.cursorToEntry(timers);
-					newEd.setUIFromTimer();
-				}
-			});
+			long id = intent.getLongExtra(TimerDB.KEY_ID, -1);
+			final Editor ed = (Editor)switcher.getCurrentView();
+			if (ed.timer.id != id) return;
+			if (ed.timer.notify(context)) {
+				save();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						ed.setUIFromTimer();
+					}
+				});
+			}
+			this.setResultCode(Activity.RESULT_OK);
 		}
     };
 
@@ -112,7 +114,7 @@ public class TimerActivity extends Activity
     {
     	super.onPause();
     	handler.removeCallbacks(ticker);
-    	unregisterReceiver(requeryReceiver);
+    	unregisterReceiver(resetReceiver);
     	if (needSave) save();
     }
     
@@ -120,7 +122,7 @@ public class TimerActivity extends Activity
     protected void onResume()
     {
     	super.onResume();
-        registerReceiver(requeryReceiver, new IntentFilter(ACTION_REQUERY));
+        registerReceiver(resetReceiver, new IntentFilter(ACTION_RESET));
     	ticker.run(); 
     }
     

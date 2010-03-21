@@ -107,14 +107,15 @@ public class Timer
 		notifications.cancel((int)id);
 	}
 	
-	protected void notify(Context context)
+	protected boolean notify(Context context)
 	{
 		if (! enabled) {
 			unNotify(context);
-			return;
+			return false;
 		}
 		NotificationManager notifications = (NotificationManager)
 				context.getSystemService(Context.NOTIFICATION_SERVICE);
+		boolean needSave = nightNext;  // a one-time flag is about to be cleared
 		boolean isNight = isNight();
 		nightNext = false;
 		boolean useLED = isNight ? nightLED : dayLED; 
@@ -134,5 +135,11 @@ public class Timer
 		n.audioStreamType = AudioManager.STREAM_ALARM;
 		n.sound = isNight ? nightTone : dayTone;
 		notifications.notify((int)id, n);
+		if (! shouldWait() && intervalSecs > 0) {
+			reset();
+			needSave = true;  // to save new alarm time
+			setNextAlarm(context);
+		}
+		return needSave;
 	}
 }

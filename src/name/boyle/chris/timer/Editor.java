@@ -100,9 +100,8 @@ public class Editor extends RelativeLayout
 			}
         });
         if (! isInEditMode()) {
-        	// TODO: more sanity checks here
-	        next = (HMSPicker)findViewById(R.id.next);
-	        next.setOnChangeListener(new HMSPicker.OnChangedListener() {
+			next = (HMSPicker)findViewById(R.id.next);
+			next.setOnChangeListener(new HMSPicker.OnChangedListener() {
 				public void onChanged(HMSPicker picker, int oldVal, int newVal) {
 					if (ignoreChanges) return;
 					int s = next.getSecs();

@@ -16,6 +16,7 @@
 
 package name.boyle.chris.timer;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,22 +46,24 @@ public class Receiver extends BroadcastReceiver
 			db.close();
 		} else if (action.equals(ACTION_ALARM)) {
 			// It's time to sound/show an alarm
-			long id = intent.getLongExtra(TimerDB.KEY_ID, -1);
+			final long id = intent.getLongExtra(TimerDB.KEY_ID, -1);
 			if (id < 0) return;
-			TimerDB db = new TimerDB(context);
-			db.open();
-			Timer t = db.getEntry(id);
-			boolean needSave = t.nightNext;  // a one-time flag is about to be cleared
-			t.notify(context);
-			if (! t.shouldWait()) {
-				t.reset();
-				needSave = true;  // to save new alarm time
-				t.setNextAlarm(context);
-			}
-			if (needSave) db.saveEntry(t);
-			db.close();
-			if (needSave) context.sendBroadcast(new Intent(TimerActivity.ACTION_REQUERY));
+			// We ask TimerActivity to do this (rather than say we've done it)
+			// to avoid conflicting modifications in the case where a delayed
+			// save has already been queued
+			Intent i = new Intent(TimerActivity.ACTION_RESET);
+			i.putExtra(TimerDB.KEY_ID, id);
+			context.sendOrderedBroadcast(i, null, new BroadcastReceiver() {
+				@Override
+				public void onReceive(Context context, Intent intent) {
+					if (getResultCode() != Activity.RESULT_CANCELED) return;  // Activity caught it
+					TimerDB db = new TimerDB(context);
+					db.open();
+					Timer t = db.getEntry(id);
+					if (t.notify(context)) db.saveEntry(t);
+					db.close();
+				}
+			}, null, Activity.RESULT_CANCELED, null, null);
 		}
 	}
-
 }
