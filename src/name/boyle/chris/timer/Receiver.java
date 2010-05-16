@@ -48,7 +48,7 @@ public class Receiver extends BroadcastReceiver
 			// It's time to sound/show an alarm
 			final long id;
 			try {
-				id = Long.parseLong(intent.getData().getAuthority());
+				id = Long.parseLong(intent.getData().getSchemeSpecificPart());
 			} catch (NumberFormatException e) {
 				return;
 			}
