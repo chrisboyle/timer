@@ -24,7 +24,7 @@ import android.database.Cursor;
 
 public class Receiver extends BroadcastReceiver
 {
-	protected static String ACTION_ALARM = "name.boyle.chris.timer.ALARM";
+	protected static final String ACTION_ALARM = "name.boyle.chris.timer.ALARM";
 
 	@Override
 	public void onReceive(Context context, Intent intent)
@@ -46,8 +46,12 @@ public class Receiver extends BroadcastReceiver
 			db.close();
 		} else if (action.equals(ACTION_ALARM)) {
 			// It's time to sound/show an alarm
-			final long id = intent.getLongExtra(TimerDB.KEY_ID, -1);
-			if (id < 0) return;
+			final long id;
+			try {
+				id = Long.parseLong(intent.getData().getAuthority());
+			} catch (NumberFormatException e) {
+				return;
+			}
 			// We ask TimerActivity to do this (rather than say we've done it)
 			// to avoid conflicting modifications in the case where a delayed
 			// save has already been queued

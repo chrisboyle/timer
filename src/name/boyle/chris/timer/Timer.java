@@ -49,8 +49,7 @@ public class Timer
 	protected void setNextAlarm(Context context)
 	{
 		AlarmManager alarms = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-		Intent i = new Intent(Receiver.ACTION_ALARM);
-		i.putExtra(TimerDB.KEY_ID, id);
+		Intent i = new Intent(Receiver.ACTION_ALARM, Uri.parse("timer:"+id));
 		PendingIntent p = PendingIntent.getBroadcast(context, 0, i, 0);
 		if (enabled) {
 			alarms.setRepeating(AlarmManager.RTC_WAKEUP, nextMillis, 300000, p);  // 5 minutes
