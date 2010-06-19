@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.util.Log;
 
 public class Receiver extends BroadcastReceiver
 {
@@ -46,10 +47,12 @@ public class Receiver extends BroadcastReceiver
 			db.close();
 		} else if (action.equals(ACTION_ALARM)) {
 			// It's time to sound/show an alarm
+			Log.d(TimerActivity.TAG, "ACTION_ALARM: \""+intent.getData().toString()+"\"");
 			final long id;
 			try {
 				id = Long.parseLong(intent.getData().getSchemeSpecificPart());
 			} catch (NumberFormatException e) {
+				Log.e(TimerActivity.TAG, "NumberFormatException! "+e.toString());
 				return;
 			}
 			// We ask TimerActivity to do this (rather than say we've done it)
@@ -57,10 +60,16 @@ public class Receiver extends BroadcastReceiver
 			// save has already been queued
 			Intent i = new Intent(TimerActivity.ACTION_RESET);
 			i.putExtra(TimerDB.KEY_ID, id);
+			Log.d(TimerActivity.TAG, "Pinging TimerActivity...");
 			context.sendOrderedBroadcast(i, null, new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
-					if (getResultCode() != Activity.RESULT_CANCELED) return;  // Activity caught it
+					int result = getResultCode();
+					if (result != Activity.RESULT_CANCELED) {
+						Log.d(TimerActivity.TAG, "TimerActivity caught the broadcast, result "+result);
+						return;  // Activity caught it
+					}
+					Log.d(TimerActivity.TAG, "TimerActivity did not catch the broadcast");
 					TimerDB db = new TimerDB(context);
 					db.open();
 					Timer t = db.getEntry(id);

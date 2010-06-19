@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.text.format.Time;
+import android.util.Log;
 
 public class Timer
 {
@@ -109,9 +110,11 @@ public class Timer
 	protected boolean notify(Context context)
 	{
 		if (! enabled) {
+			Log.d(TimerActivity.TAG, "Not notifying because timer is disabled");
 			unNotify(context);
 			return false;
 		}
+		Log.d(TimerActivity.TAG, "Setting up notification");
 		NotificationManager notifications = (NotificationManager)
 				context.getSystemService(Context.NOTIFICATION_SERVICE);
 		boolean needSave = nightNext;  // a one-time flag is about to be cleared
@@ -134,6 +137,7 @@ public class Timer
 		n.audioStreamType = AudioManager.STREAM_ALARM;
 		n.sound = isNight ? nightTone : dayTone;
 		notifications.notify((int)id, n);
+		Log.d(TimerActivity.TAG, "Notified!");
 		if (! shouldWait() && intervalSecs > 0) {
 			reset();
 			needSave = true;  // to save new alarm time
