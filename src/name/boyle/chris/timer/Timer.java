@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.text.format.Time;
 import android.util.Log;
 
@@ -102,6 +103,7 @@ public class Timer
 	
 	protected void unNotify(Context context)
 	{
+		Log.d(TimerActivity.TAG, "unNotify");
 		NotificationManager notifications = (NotificationManager)
 				context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notifications.cancel((int)id);
@@ -117,6 +119,7 @@ public class Timer
 		Log.d(TimerActivity.TAG, "Setting up notification");
 		NotificationManager notifications = (NotificationManager)
 				context.getSystemService(Context.NOTIFICATION_SERVICE);
+		PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 		boolean needSave = nightNext;  // a one-time flag is about to be cleared
 		boolean isNight = isNight();
 		nightNext = false;
@@ -136,8 +139,14 @@ public class Timer
 		}
 		n.audioStreamType = AudioManager.STREAM_ALARM;
 		n.sound = isNight ? nightTone : dayTone;
+		PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Timer");
+		wl.acquire();
+		Log.d(TimerActivity.TAG, "Got wake lock");
 		notifications.notify((int)id, n);
 		Log.d(TimerActivity.TAG, "Notified!");
+		try { Thread.sleep(1000); } catch (InterruptedException e) {}  // don't really care if this is interrupted
+		Log.d(TimerActivity.TAG, "Released wake lock");
+		wl.release();
 		if (! shouldWait() && intervalSecs > 0) {
 			reset();
 			needSave = true;  // to save new alarm time
