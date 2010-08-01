@@ -89,11 +89,15 @@ public class Timer
 	
 	protected boolean isNight()
 	{
+		final int forceWakeTime = ((11 * 60) + 30) * 60;
 		if (nightNext) return true;
 		long now = System.currentTimeMillis(),
 				lastNightStart = occurrence((int)nightStart, now, false),
-				nextNightStop = occurrence((int)nightStop, lastNightStart, true);
-		return ! (lastNightStart <= nextMillis && nextNightStop <= nextMillis);
+				nextNightStop = occurrence((int)nightStop, lastNightStart, true),
+				lastForceWake = occurrence(forceWakeTime, now, false);
+		boolean n = ! (lastNightStart <= nextMillis && (nextNightStop <= nextMillis || lastForceWake >= nextNightStop));
+		Log.d(TimerActivity.TAG, "isNight(): "+n);
+		return n;
 	}
 	
 	protected boolean shouldWait()
