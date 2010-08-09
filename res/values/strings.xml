@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Timer</string>
+    <string name="plugin_name">Timer</string>
     <string name="docs_url">file:///android_asset/en/help.html</string>
+    <string name="mins_since">minutes since</string>
+    <string name="n_mins">{0} mins since timer {1}</string>
+    <string name="locale_spinner_text">{0}: {1}</string>
+    <string name="locale_spinner_no_name">(no name)</string>
 </resources>

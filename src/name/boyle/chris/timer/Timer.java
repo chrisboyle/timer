@@ -43,6 +43,21 @@ public class Timer
 			dayLED = true, dayWait = true,
 			nightLED = false, nightWait = true;
 
+	/**
+	 * {@code Intent} to ask <i>Locale</i> to re-query our conditions. Cached here so that we only have to create this object
+	 * once.
+	 */
+	static private final Intent REQUEST_REQUERY = new Intent(com.twofortyfouram.Intent.ACTION_REQUEST_QUERY);
+
+	static
+	{
+		/*
+		 * The Activity name must be present as an extra in this Intent, so that Locale will know who needs updating. This intent
+		 * will be ignored unless the extra is present.
+		 */
+		REQUEST_REQUERY.putExtra(com.twofortyfouram.Intent.EXTRA_ACTIVITY, LocaleEdit.class.getName());
+	}
+
 	public Timer()
 	{
 		dayTone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
@@ -60,9 +75,10 @@ public class Timer
 		}
 	}
 	
-	protected void reset()
+	protected void reset(Context context)
 	{
 		nextMillis = (enabled ? System.currentTimeMillis() : 0) + intervalSecs*1000 + 3;
+		context.sendBroadcast(REQUEST_REQUERY);
 	}
 	
 	protected static long occurrence(int timeOfDay, long from, boolean forwards)
@@ -111,6 +127,7 @@ public class Timer
 		NotificationManager notifications = (NotificationManager)
 				context.getSystemService(Context.NOTIFICATION_SERVICE);
 		notifications.cancel((int)id);
+		requeryLocale(context);
 	}
 	
 	protected boolean notify(Context context)
@@ -131,6 +148,8 @@ public class Timer
 		String text = name.length() > 0 ? name : "Timer";
 		Notification n = new Notification(R.drawable.icon, text,
 				nextMillis);
+		// TODO: intent should lead to the right alarm
+		// TODO: intent should mark that alarm as seen
 		n.setLatestEventInfo(context, text, null, PendingIntent.getActivity(
 				context, 0, new Intent(context, TimerActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
@@ -152,10 +171,23 @@ public class Timer
 		Log.d(TimerActivity.TAG, "Released wake lock");
 		wl.release();
 		if (! shouldWait() && intervalSecs > 0) {
-			reset();
+			reset(context);
 			needSave = true;  // to save new alarm time
 			setNextAlarm(context);
 		}
 		return needSave;
+	}
+
+	public boolean isLateByMins(int mins)
+	{
+		if (!enabled) return false;
+		long late = System.currentTimeMillis() - nextMillis;
+		// First clause is needed for the case where we're in the final minute and mins == 0
+		return (late >= 0) && (late/60000 >= mins);
+	}
+
+	public static void requeryLocale(Context c)
+	{
+		c.sendBroadcast(REQUEST_REQUERY);
 	}
 }

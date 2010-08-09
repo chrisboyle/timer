@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Bundle;
 import android.util.Log;
 
 public class Receiver extends BroadcastReceiver
@@ -77,6 +78,32 @@ public class Receiver extends BroadcastReceiver
 					db.close();
 				}
 			}, null, Activity.RESULT_CANCELED, null, null);
+			Timer.requeryLocale(context);
+		} else if (action.equals(com.twofortyfouram.Intent.ACTION_QUERY_CONDITION)) {
+			final Bundle bundle = intent.getBundleExtra(com.twofortyfouram.Intent.EXTRA_BUNDLE);
+			if (bundle == null)
+			{
+				Log.e(TimerActivity.TAG, "Received null BUNDLE"); //$NON-NLS-1$
+				return;
+			}
+			if (!bundle.containsKey(LocaleEdit.BUNDLE_EXTRA_MINS) || !bundle.containsKey(LocaleEdit.BUNDLE_EXTRA_ID))
+			{
+				Log.e(TimerActivity.TAG, "Missing param in Bundle"); //$NON-NLS-1$
+				return;
+			}
+			int mins = bundle.getInt(LocaleEdit.BUNDLE_EXTRA_MINS);
+			long id = bundle.getLong(LocaleEdit.BUNDLE_EXTRA_ID);
+			TimerDB db = new TimerDB(context);
+			db.open();
+			Timer t = db.getEntry(id);
+			db.close();
+			if (t == null) {
+				setResultCode(com.twofortyfouram.Intent.RESULT_CONDITION_UNKNOWN);
+			} else if (t.isLateByMins(mins)) {
+				setResultCode(com.twofortyfouram.Intent.RESULT_CONDITION_SATISFIED);
+			} else {
+				setResultCode(com.twofortyfouram.Intent.RESULT_CONDITION_UNSATISFIED);
+			}
 		}
 	}
 }
