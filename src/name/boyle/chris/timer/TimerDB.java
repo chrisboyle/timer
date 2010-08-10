@@ -31,8 +31,9 @@ public class TimerDB
 	private static final String TAG = "TimerDB";
 	private static final String DB_NAME = "timer.db";
 	private static final String DB_TABLE = "timers";
-	private static final int DB_VERSION = 1;
-	
+	private static final int DB_VERSION = 2;
+
+	// v1
 	public static final String KEY_ID = "_id";
 	public static final int    COL_ID = 0;
 	public static final String KEY_NAME = "name";
@@ -61,7 +62,10 @@ public class TimerDB
 	public static final int    COL_NIGHTSTOP = 12;
 	public static final String KEY_NIGHTNEXT = "nightNext";
 	public static final int    COL_NIGHTNEXT = 13;
-	
+	// v2
+	public static final String KEY_SEEN = "seen";
+	public static final int    COL_SEEN = 14;
+
 	private static final String DB_CREATE = "create table " + DB_TABLE + " (" +
 			KEY_ID + " integer primary key autoincrement, " +
 			KEY_NAME + " text not null, " +
@@ -76,7 +80,8 @@ public class TimerDB
 			KEY_NIGHTWAIT + " integer not null, " +
 			KEY_NIGHTSTART + " integer not null, " +
 			KEY_NIGHTSTOP + " integer not null, " +
-			KEY_NIGHTNEXT + " integer not null)";
+			KEY_NIGHTNEXT + " integer not null, " +
+			KEY_SEEN + " integer not null)";
 
 	public ContentValues toContentVals(Timer t)
 	{
@@ -94,18 +99,22 @@ public class TimerDB
 		c.put(KEY_NIGHTSTART, t.nightStart);
 		c.put(KEY_NIGHTSTOP, t.nightStop);
 		c.put(KEY_NIGHTNEXT, t.nightNext);
+		c.put(KEY_SEEN, t.seen);
 		return c;
 	}
 
 	public Timer getEntry(long id)
 	{
 		Cursor c = db.query(DB_TABLE, null, KEY_ID+"="+id, null, null, null, null);
-		if (! c.moveToFirst()) return null;
+		if (! c.moveToFirst()) {
+			c.close();
+			return null;
+		}
 		Timer t = cursorToEntry(c);
 		c.close();
 		return t;
 	}
-	
+
 	public Timer cursorToEntry(Cursor c)
 	{
 		Timer t = new Timer();
@@ -124,9 +133,10 @@ public class TimerDB
 		t.nightStart = c.getInt(COL_NIGHTSTART);
 		t.nightStop = c.getInt(COL_NIGHTSTOP);
 		t.nightNext = c.getInt(COL_NIGHTNEXT) > 0;
+		t.seen = c.getInt(COL_SEEN) > 0;
 		return t;
 	}
-	
+
 	Uri uriOrNull(String s)
 	{
 		if (s == null) return null;
@@ -136,24 +146,24 @@ public class TimerDB
 	private SQLiteDatabase db;
 	private final Context context;
 	private Helper helper;
-	
+
 	public TimerDB(Context _context)
 	{
 		context = _context;
 		helper = new Helper(context, DB_NAME, null, DB_VERSION);
 	}
-	
+
 	public TimerDB open() throws SQLException
 	{
 		db = helper.getWritableDatabase();
 		return this;
 	}
-	
+
 	public void close()
 	{
 		db.close();
 	}
-	
+
 	public long saveEntry(Timer t)
 	{
 		if (t.id < 0) 
@@ -161,22 +171,32 @@ public class TimerDB
 		else
 			return db.update(DB_TABLE, toContentVals(t), KEY_ID+"="+t.id, null);
 	}
-	
+
 	public int removeEntry(long id)
 	{
 		return db.delete(DB_TABLE, KEY_ID+"="+id, null);
 	}
-	
+
 	public int removeEntry(Timer t)
 	{
 		return removeEntry(t.id);
 	}
-	
+
 	public Cursor getAllEntries()
 	{
 		return db.query(DB_TABLE, null, null, null, null, null, KEY_ID);
 	}
-	
+
+	public static void moveCursorTo(Cursor c, long id)
+	{
+		c.moveToFirst();
+		do {
+			if (c.getLong(COL_ID) == id) {
+				break;
+			}
+		} while (c.moveToNext());
+	}
+
 	private static class Helper extends SQLiteOpenHelper
 	{
 		public Helper(Context context, String name, CursorFactory factory, int version)
@@ -193,8 +213,17 @@ public class TimerDB
 		@Override
 		public void onUpgrade(SQLiteDatabase _db, int oldV, int newV)
 		{
-			//_db.execSQL("drop table if exists "+DB_TABLE);
-			//onCreate(_db);
+			switch (oldV) {
+			case 1:
+				_db.execSQL("ALTER TABLE timers ADD COLUMN "+KEY_SEEN+" integer not null default 0");
+			// fall through
+			//case 2:
+			// ...
+				break;
+			default:
+				Log.e(TAG, "Upgrade from unsupported version "+oldV);
+				break;
+			}
 		}
 	}
 }

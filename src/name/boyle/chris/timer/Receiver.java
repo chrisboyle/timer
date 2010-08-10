@@ -99,7 +99,7 @@ public class Receiver extends BroadcastReceiver
 			db.close();
 			if (t == null) {
 				setResultCode(com.twofortyfouram.Intent.RESULT_CONDITION_UNKNOWN);
-			} else if (t.isLateByMins(mins)) {
+			} else if (t.isLateByMins(mins) && ! t.seen) {
 				setResultCode(com.twofortyfouram.Intent.RESULT_CONDITION_SATISFIED);
 			} else {
 				setResultCode(com.twofortyfouram.Intent.RESULT_CONDITION_UNSATISFIED);

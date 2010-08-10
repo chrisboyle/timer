@@ -68,6 +68,7 @@ public class Editor extends RelativeLayout
         reset.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
 				timer.reset(context);
+				timer.seen = false;
 				parent.save();
 				timer.unNotify(context);
 				timer.setNextAlarm(context);
@@ -94,6 +95,7 @@ public class Editor extends RelativeLayout
 				timer.nextMillis = secs*1000 + (isChecked ? System.currentTimeMillis()+3 : 0);
 				parent.handler.removeCallbacks(parent.ticker);
 				if (isChecked) parent.handler.postDelayed(parent.ticker, 1003);
+				timer.seen = false;
 				parent.save();
 				timer.setNextAlarm(getContext());
 				if (!isChecked) timer.notify(getContext());
@@ -109,6 +111,7 @@ public class Editor extends RelativeLayout
 					timer.nextMillis = s*1000 + (timer.enabled ? System.currentTimeMillis()-3 : 0);
 					if (timer.enabled) parent.ticker.run(); else updateNextTimes();
 					timer.setNextAlarm(getContext());
+					timer.seen = false;
 					if (cancelling) {
 						parent.save();
 						timer.unNotify(context);
@@ -122,8 +125,10 @@ public class Editor extends RelativeLayout
 				public void onChanged(HMSPicker picker, int oldVal, int newVal) {
 					if (ignoreChanges) return;
 					timer.intervalSecs = interval.getSecs();
-					if (timer.nextMillis > System.currentTimeMillis())
+					if (timer.nextMillis > System.currentTimeMillis()) {
 						timer.setNextAlarm(getContext());
+						timer.seen = false;
+					}
 					updateNextTimes();
 					parent.delayedSave();
 				}

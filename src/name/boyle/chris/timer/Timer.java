@@ -41,7 +41,7 @@ public class Timer
 	public Uri dayTone = null, nightTone = null;
 	public boolean nightNext = false,
 			dayLED = true, dayWait = true,
-			nightLED = false, nightWait = true;
+			nightLED = false, nightWait = true, seen = false;
 
 	/**
 	 * {@code Intent} to ask <i>Locale</i> to re-query our conditions. Cached here so that we only have to create this object
@@ -74,13 +74,13 @@ public class Timer
 			alarms.cancel(p);
 		}
 	}
-	
+
 	protected void reset(Context context)
 	{
 		nextMillis = (enabled ? System.currentTimeMillis() : 0) + intervalSecs*1000 + 3;
 		context.sendBroadcast(REQUEST_REQUERY);
 	}
-	
+
 	protected static long occurrence(int timeOfDay, long from, boolean forwards)
 	{
 		Time t = new Time();
@@ -102,7 +102,7 @@ public class Timer
 		}
 		return m;
 	}
-	
+
 	protected boolean isNight()
 	{
 		final int forceWakeTime = ((11 * 60) + 30) * 60;
@@ -115,12 +115,12 @@ public class Timer
 		Log.d(TimerActivity.TAG, "isNight(): "+n);
 		return n;
 	}
-	
+
 	protected boolean shouldWait()
 	{
 		return isNight() ? nightWait : dayWait;
 	}
-	
+
 	protected void unNotify(Context context)
 	{
 		Log.d(TimerActivity.TAG, "unNotify");
@@ -129,7 +129,7 @@ public class Timer
 		notifications.cancel((int)id);
 		requeryLocale(context);
 	}
-	
+
 	protected boolean notify(Context context)
 	{
 		if (! enabled) {
@@ -151,7 +151,8 @@ public class Timer
 		// TODO: intent should lead to the right alarm
 		// TODO: intent should mark that alarm as seen
 		n.setLatestEventInfo(context, text, null, PendingIntent.getActivity(
-				context, 0, new Intent(context, TimerActivity.class)
+				context, 0, new Intent(Intent.ACTION_VIEW, Uri.parse("timer:"+id),
+				context, TimerActivity.class)
 				.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0));
 		n.flags = Notification.FLAG_NO_CLEAR
 				| (useLED ? Notification.FLAG_SHOW_LIGHTS : 0);
@@ -174,6 +175,7 @@ public class Timer
 			reset(context);
 			needSave = true;  // to save new alarm time
 			setNextAlarm(context);
+			seen = false;
 		}
 		return needSave;
 	}
