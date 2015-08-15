@@ -1,3 +1,9 @@
+app/build
 bin
+build
 gen
+.gradle
+.idea/workspace.xml
+import-summary.txt
+local.properties
 res/drawable/icon.png
