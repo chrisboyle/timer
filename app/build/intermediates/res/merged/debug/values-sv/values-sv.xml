@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/home/alex/StudioProjects/timer-opposition/app/src/main/res/values-sv/strings_plugin.xml -->
+    <eat-comment/>
+    <string name="plugin_dialog_install">Installera</string>
+    <string name="plugin_dialog_market_not_available">Programmet är inte installerat på din telefon.</string>
+    <string name="plugin_dialog_need_locale_informative">Tryck på \"Installera\" för att leta upp <i>Locale</i> på Android Market.</string>
+    <string name="plugin_dialog_need_locale_message"><i>Locale</i> krävs för att använda denna plugin. Vill du installera <i>Locale</i>?</string>
+    <string name="plugin_dialog_title"><i>Locale</i> Krävs</string>
+</resources>
