@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2010 Chris Boyle
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+	<LinearLayout android:id="@+id/titleAndToggle"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent">
+		<Button android:id="@+id/reset" android:text="Reset"
+			android:layout_width="wrap_content" android:layout_height="fill_parent" />
+		<EditText android:layout_height="wrap_content" android:layout_width="0dip" android:layout_weight="1"
+			android:id="@+id/timerName" android:hint="Timer name"/>
+		<ToggleButton android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/toggler"
+			android:layout_gravity="center"/>
+	</LinearLayout>
+	<LinearLayout android:layout_height="wrap_content"
+		android:layout_centerHorizontal="true" android:layout_below="@id/titleAndToggle"
+		android:id="@+id/timeLabels" android:layout_width="fill_parent">
+		<TextView android:layout_height="wrap_content" android:id="@+id/nextLabel"
+			android:layout_weight="1"
+			android:gravity="center" android:textSize="8pt" android:layout_width="120dp" android:text="Next alarm in"/>
+		<TextView android:layout_height="wrap_content" android:id="@+id/intervalLabel"
+			android:text="then every" android:layout_weight="1" android:gravity="center"
+			android:textSize="8pt" android:layout_width="120dp"></TextView>
+	</LinearLayout>
+	<name.boyle.chris.timer.HMSPicker android:layout_height="wrap_content"
+		android:layout_below="@id/timeLabels" android:id="@+id/next" android:layout_width="160dp"/>
+	<name.boyle.chris.timer.HMSPicker android:layout_height="wrap_content"
+		android:layout_below="@id/timeLabels" android:layout_toRightOf="@id/next"
+		android:id="@+id/interval"
+		android:layout_width="160dp" android:layout_alignParentRight="true"/>
+	<LinearLayout android:layout_height="wrap_content"
+		android:id="@+id/nextAlarms" android:layout_below="@id/next"
+		android:layout_width="fill_parent">
+		<TextView android:layout_height="wrap_content" android:layout_weight="1"
+			android:gravity="center" android:id="@+id/nextAlarm" android:layout_width="120dp"/>
+		<TextView android:layout_height="wrap_content" android:layout_weight="1"
+			android:gravity="center" android:id="@+id/nextAlarm2" android:layout_width="120dp"/>
+	</LinearLayout>
+	<CheckBox android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_alignParentRight="true"
+		android:text="Wait" android:id="@+id/dayWait" android:layout_below="@id/nextAlarms" android:paddingRight="4dp"/>
+	<CheckBox android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="LED" android:id="@+id/dayLED"
+		android:layout_toLeftOf="@id/dayWait" android:layout_below="@id/nextAlarms"/>
+	<Button android:layout_height="wrap_content" android:id="@+id/dayTone"
+		android:layout_toLeftOf="@id/dayLED" android:layout_width="fill_parent"
+		android:layout_below="@id/nextAlarms"/>
+	<LinearLayout android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:orientation="horizontal"
+		android:id="@+id/nightBits" android:layout_below="@id/dayTone">
+		<TextView android:layout_width="wrap_content" android:text="Between"
+			android:id="@+id/nightLabel" android:layout_height="wrap_content"
+			android:layout_gravity="center" android:textSize="7pt"/>
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/nightStart"/>
+		<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="and"
+			android:layout_gravity="center" android:textSize="7pt"/>
+		<Button android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:id="@+id/nightStop"/>
+		<CheckBox android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:text="and next"
+			android:layout_gravity="center" android:id="@+id/nightNext"/>
+	</LinearLayout>
+	<CheckBox android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_alignParentRight="true"
+		android:text="Wait" android:id="@+id/nightWait" android:layout_below="@id/nightBits" android:paddingRight="4dp"/>
+	<CheckBox android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="LED" android:id="@+id/nightLED"
+		android:layout_toLeftOf="@id/nightWait" android:layout_below="@id/nightBits"/>
+	<Button android:layout_height="wrap_content"
+		android:layout_width="fill_parent" android:layout_toLeftOf="@id/nightLED"
+		android:layout_below="@id/nightBits" android:id="@+id/nightTone"/>
+</merge>
+<!-- From: file:/home/alex/StudioProjects/timer-opposition/app/src/main/res/layout/editor.xml -->
