@@ -208,7 +208,7 @@ public class Editor extends RelativeLayout
     	boolean isNight = v == nightTone;
     	Intent i = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
     	i.putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, isNight ? timer.nightTone : timer.dayTone);
-    	i.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM);
+    	i.putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALL);
     	parent.startActivityForResult(i, isNight ? TimerActivity.NIGHT_TONE : TimerActivity.DAY_TONE);
 	}};
     
